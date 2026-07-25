@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 import { AppShell } from "@/components/layout/AppShell"
+import { AnalyticsPage } from "@/pages/AnalyticsPage"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { PlaceholderPage } from "@/pages/PlaceholderPage"
 
@@ -10,7 +11,7 @@ export default function App() {
       <Routes>
         <Route element={<AppShell />}>
           <Route index element={<DashboardPage />} />
-          <Route path="analytics" element={<PlaceholderPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="busca" element={<PlaceholderPage />} />
           <Route path="monitoramento" element={<PlaceholderPage />} />
           <Route path="dominios" element={<PlaceholderPage />} />

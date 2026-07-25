@@ -104,3 +104,51 @@ export const processPipeline = [
   { id: "concessao", label: "Concessão", count: 3 },
   { id: "registro", label: "Registro", count: 2 },
 ]
+
+export const analyticsRangeFilters = [
+  { id: "mes", label: "Mês" },
+  { id: "trimestre", label: "Trimestre" },
+  { id: "ano", label: "Ano" },
+] as const
+
+export type AnalyticsRangeId = (typeof analyticsRangeFilters)[number]["id"]
+
+export const depositsByMonth = {
+  total: 342,
+  delta: "↑ 18% YoY",
+  year: 2026,
+  months: ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"] as const,
+  values: [22, 26, 24, 30, 28, 34, 31, 38, 35, 42, 39, 46],
+}
+
+export const portfolioStatus = {
+  active: 184,
+  deferralRate: "98%",
+  segments: [
+    { id: "exame", label: "Em exame", value: 72, color: "var(--primary)" },
+    { id: "publicado", label: "Publicado", value: 31, color: "var(--blush)" },
+    {
+      id: "registrado",
+      label: "Registrado",
+      value: 49,
+      color: "#3e5b45",
+    },
+    {
+      id: "outros",
+      label: "Outros",
+      value: 32,
+      color: "color-mix(in srgb, var(--ink) 22%, transparent)",
+    },
+  ],
+}
+
+/** Tempo médio até registro (semanas), jan–dez */
+export const avgTimeToRegister = [52, 49, 47, 44, 46, 41, 38, 40, 36, 33, 31, 29]
+
+export const topNiceClasses = [
+  { cls: "NCL 3", name: "Cosméticos", count: 38, pct: 100 },
+  { cls: "NCL 41", name: "Educação & Esporte", count: 29, pct: 76 },
+  { cls: "NCL 9", name: "Software", count: 24, pct: 63 },
+  { cls: "NCL 43", name: "Alimentação", count: 19, pct: 50 },
+  { cls: "NCL 44", name: "Saúde", count: 15, pct: 40 },
+]

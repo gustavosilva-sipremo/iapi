@@ -18,7 +18,7 @@ const ease = "duration-300 ease-in-out"
 function BrandMark() {
   return (
     <div
-      className="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-lg font-display text-sm italic"
+      className="bg-brand-gradient text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-lg font-display text-sm italic shadow-sm"
       aria-hidden
     >
       i

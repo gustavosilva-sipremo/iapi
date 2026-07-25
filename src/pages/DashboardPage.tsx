@@ -63,7 +63,7 @@ export function DashboardPage() {
             <p
               className={cn(
                 "font-display mt-1.5 text-2xl tracking-tight sm:mt-2 sm:text-3xl",
-                kpi.tone === "danger" ? "text-destructive" : "text-ink"
+                kpi.tone === "danger" ? "text-primary" : "text-ink"
               )}
             >
               {kpi.value}
@@ -99,9 +99,9 @@ export function DashboardPage() {
                 <span className="text-muted-foreground text-[11px] tracking-wide uppercase">
                   {stage.label}
                 </span>
-                <div className="bg-blush-soft mt-2 h-1 overflow-hidden rounded-full">
+                <div className="bg-blush-soft/70 mt-2 h-1 overflow-hidden rounded-full">
                   <div
-                    className="bg-primary/70 h-full rounded-full"
+                    className="bg-brand-gradient h-full rounded-full"
                     style={{
                       width: `${Math.min(100, stage.count * 12)}%`,
                     }}
@@ -129,9 +129,9 @@ export function DashboardPage() {
                 <span className="font-display text-2xl text-ink">
                   {stage.count}
                 </span>
-                <div className="bg-blush-soft h-1 overflow-hidden rounded-full">
+                <div className="bg-blush-soft/70 h-1 overflow-hidden rounded-full">
                   <div
-                    className="bg-primary/70 h-full rounded-full transition-all"
+                    className="bg-brand-gradient h-full rounded-full transition-all"
                     style={{
                       width: `${Math.min(100, stage.count * 12)}%`,
                     }}
