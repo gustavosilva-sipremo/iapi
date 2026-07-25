@@ -152,3 +152,124 @@ export const topNiceClasses = [
   { cls: "NCL 43", name: "Alimentação", count: 19, pct: 50 },
   { cls: "NCL 44", name: "Saúde", count: 15, pct: 40 },
 ]
+
+export const casoFilters = [
+  { id: "todos", label: "Todos" },
+  { id: "exame", label: "Em exame" },
+  { id: "exigencia", label: "Exigência" },
+  { id: "publicado", label: "Publicado" },
+  { id: "registrado", label: "Registrado" },
+] as const
+
+export type CasoFilterId = (typeof casoFilters)[number]["id"]
+
+export type CasoStatusTone =
+  | "ok"
+  | "warn"
+  | "bronze"
+  | "info"
+  | "neutral"
+
+export type CasoPedido = {
+  id: string
+  marca: string
+  numero: string
+  cliente: string
+  classe: string
+  status: string
+  fase: string
+  progress: number
+  tone: CasoStatusTone
+}
+
+export const casosPedidos: CasoPedido[] = [
+  {
+    id: "c1",
+    marca: "Lumière",
+    numero: "923.481.207",
+    cliente: "Lumière Cosméticos",
+    classe: "NCL 3",
+    status: "Registrado",
+    fase: "Concluído",
+    progress: 100,
+    tone: "ok",
+  },
+  {
+    id: "c2",
+    marca: "Verbo",
+    numero: "923.512.880",
+    cliente: "Verbo Editora",
+    classe: "NCL 16",
+    status: "Exigência",
+    fase: "Aguardando resposta",
+    progress: 62,
+    tone: "warn",
+  },
+  {
+    id: "c3",
+    marca: "Raiz",
+    numero: "923.502.119",
+    cliente: "Raiz Alimentos",
+    classe: "NCL 29",
+    status: "Publicado RPI",
+    fase: "Prazo de oposição",
+    progress: 78,
+    tone: "bronze",
+  },
+  {
+    id: "c4",
+    marca: "Tatame",
+    numero: "923.498.640",
+    cliente: "Tatame Studio",
+    classe: "NCL 41",
+    status: "Em análise",
+    fase: "Exame de mérito",
+    progress: 48,
+    tone: "info",
+  },
+  {
+    id: "c5",
+    marca: "Aurora",
+    numero: "923.488.305",
+    cliente: "Aurora Clínica",
+    classe: "NCL 44",
+    status: "Registrado",
+    fase: "Concluído",
+    progress: 100,
+    tone: "ok",
+  },
+  {
+    id: "c6",
+    marca: "Ostra & Sal",
+    numero: "923.530.077",
+    cliente: "Ostra & Sal",
+    classe: "NCL 43",
+    status: "Em análise",
+    fase: "Exame formal",
+    progress: 30,
+    tone: "info",
+  },
+  {
+    id: "c7",
+    marca: "Cobalto",
+    numero: "923.541.262",
+    cliente: "Cobalto Tech",
+    classe: "NCL 9",
+    status: "Busca prévia",
+    fase: "Análise de viabilidade",
+    progress: 12,
+    tone: "neutral",
+  },
+]
+
+export function matchesCasoFilter(
+  caso: CasoPedido,
+  filter: CasoFilterId
+): boolean {
+  if (filter === "todos") return true
+  if (filter === "exame") return caso.status === "Em análise"
+  if (filter === "exigencia") return caso.status === "Exigência"
+  if (filter === "publicado") return caso.status.startsWith("Publicado")
+  if (filter === "registrado") return caso.status === "Registrado"
+  return true
+}

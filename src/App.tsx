@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 import { AppShell } from "@/components/layout/AppShell"
 import { AnalyticsPage } from "@/pages/AnalyticsPage"
+import { CasosPage } from "@/pages/CasosPage"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { PlaceholderPage } from "@/pages/PlaceholderPage"
 
@@ -15,7 +16,7 @@ export default function App() {
           <Route path="busca" element={<PlaceholderPage />} />
           <Route path="monitoramento" element={<PlaceholderPage />} />
           <Route path="dominios" element={<PlaceholderPage />} />
-          <Route path="casos" element={<PlaceholderPage />} />
+          <Route path="casos" element={<CasosPage />} />
           <Route path="prazos" element={<PlaceholderPage />} />
           <Route path="tarefas" element={<PlaceholderPage />} />
           <Route path="agenda" element={<PlaceholderPage />} />
