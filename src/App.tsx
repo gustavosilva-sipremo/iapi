@@ -5,8 +5,10 @@ import { AnalyticsPage } from "@/pages/AnalyticsPage"
 import { AgendaPage } from "@/pages/AgendaPage"
 import { BuscaPage } from "@/pages/BuscaPage"
 import { CasosPage } from "@/pages/CasosPage"
+import { ClientesPage } from "@/pages/ClientesPage"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { DominiosPage } from "@/pages/DominiosPage"
+import { LeadsPage } from "@/pages/LeadsPage"
 import { MonitoramentoPage } from "@/pages/MonitoramentoPage"
 import { PrazosPage } from "@/pages/PrazosPage"
 import { PlaceholderPage } from "@/pages/PlaceholderPage"
@@ -26,8 +28,8 @@ export default function App() {
           <Route path="prazos" element={<PrazosPage />} />
           <Route path="tarefas" element={<TarefasPage />} />
           <Route path="agenda" element={<AgendaPage />} />
-          <Route path="clientes" element={<PlaceholderPage />} />
-          <Route path="leads" element={<PlaceholderPage />} />
+          <Route path="clientes" element={<ClientesPage />} />
+          <Route path="leads" element={<LeadsPage />} />
           <Route path="financeiro" element={<PlaceholderPage />} />
           <Route path="usuarios" element={<PlaceholderPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
