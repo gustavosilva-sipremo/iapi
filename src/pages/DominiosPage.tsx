@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Search } from "lucide-react"
 
+import { PageHeader } from "@/components/PageHeader"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,20 +12,19 @@ export function DominiosPage() {
 
   return (
     <div className="flex flex-col gap-8 sm:gap-10 md:gap-12">
-      <section className="animate-fade-in-up max-w-3xl">
-        <p className="text-muted-foreground text-[11px] tracking-[0.16em] uppercase">
-          05 — Inteligência INPI
-        </p>
-        <h2 className="font-display mt-1.5 text-[1.75rem] leading-[1.15] tracking-tight text-ink sm:mt-2 sm:text-3xl md:text-4xl">
-          Domínios & redes sociais
-        </h2>
-        <p className="text-muted-foreground mt-2.5 text-sm leading-relaxed sm:mt-3 sm:text-[15px]">
-          Antes de registrar o nome, confira a disponibilidade do{" "}
-          <strong className="font-medium text-ink">domínio</strong> e dos{" "}
-          <strong className="font-medium text-ink">@usernames</strong> nas redes —
-          tudo de uma vez.
-        </p>
-      </section>
+      <PageHeader
+        eyebrow="05 — Inteligência INPI"
+        title="Domínios & redes sociais"
+        maxWidthClassName="max-w-3xl"
+        description={
+          <>
+            Antes de registrar o nome, confira a disponibilidade do{" "}
+            <strong className="font-medium text-ink">domínio</strong> e dos{" "}
+            <strong className="font-medium text-ink">@usernames</strong> nas redes —
+            tudo de uma vez.
+          </>
+        }
+      />
 
       <section
         className="animate-fade-in-up flex flex-col gap-3 sm:flex-row sm:items-center"

@@ -113,45 +113,160 @@ export const analyticsRangeFilters = [
 
 export type AnalyticsRangeId = (typeof analyticsRangeFilters)[number]["id"]
 
-export const depositsByMonth = {
-  total: 342,
-  delta: "↑ 18% YoY",
-  year: 2026,
-  months: ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"] as const,
-  values: [22, 26, 24, 30, 28, 34, 31, 38, 35, 42, 39, 46],
+const depositsYearValues = [22, 26, 24, 30, 28, 34, 31, 38, 35, 42, 39, 46]
+const depositsYearMonths = [
+  "J",
+  "F",
+  "M",
+  "A",
+  "M",
+  "J",
+  "J",
+  "A",
+  "S",
+  "O",
+  "N",
+  "D",
+] as const
+
+export const depositsByRange: Record<
+  AnalyticsRangeId,
+  {
+    total: number
+    delta: string
+    year: number
+    months: readonly string[]
+    values: number[]
+  }
+> = {
+  mes: {
+    total: 46,
+    delta: "↑ 8% MoM",
+    year: 2026,
+    months: ["S1", "S2", "S3", "S4"],
+    values: [9, 11, 12, 14],
+  },
+  trimestre: {
+    total: 127,
+    delta: "↑ 14% QoQ",
+    year: 2026,
+    months: ["A", "M", "J"],
+    values: [38, 42, 47],
+  },
+  ano: {
+    total: 342,
+    delta: "↑ 18% YoY",
+    year: 2026,
+    months: depositsYearMonths,
+    values: depositsYearValues,
+  },
 }
 
-export const portfolioStatus = {
-  active: 184,
-  deferralRate: "98%",
-  segments: [
-    { id: "exame", label: "Em exame", value: 72, color: "var(--primary)" },
-    { id: "publicado", label: "Publicado", value: 31, color: "var(--blush)" },
-    {
-      id: "registrado",
-      label: "Registrado",
-      value: 49,
-      color: "#3e5b45",
-    },
-    {
-      id: "outros",
-      label: "Outros",
-      value: 32,
-      color: "color-mix(in srgb, var(--ink) 22%, transparent)",
-    },
-  ],
+/** @deprecated Prefer depositsByRange — kept for any legacy imports */
+export const depositsByMonth = depositsByRange.ano
+
+type PortfolioStatus = {
+  active: number
+  deferralRate: string
+  segments: {
+    id: string
+    label: string
+    value: number
+    color: string
+  }[]
+}
+
+export const portfolioByRange: Record<AnalyticsRangeId, PortfolioStatus> = {
+  mes: {
+    active: 168,
+    deferralRate: "97%",
+    segments: [
+      { id: "exame", label: "Em exame", value: 64, color: "var(--primary)" },
+      { id: "publicado", label: "Publicado", value: 28, color: "var(--blush)" },
+      { id: "registrado", label: "Registrado", value: 46, color: "#3e5b45" },
+      {
+        id: "outros",
+        label: "Outros",
+        value: 30,
+        color: "color-mix(in srgb, var(--ink) 22%, transparent)",
+      },
+    ],
+  },
+  trimestre: {
+    active: 176,
+    deferralRate: "98%",
+    segments: [
+      { id: "exame", label: "Em exame", value: 68, color: "var(--primary)" },
+      { id: "publicado", label: "Publicado", value: 30, color: "var(--blush)" },
+      { id: "registrado", label: "Registrado", value: 48, color: "#3e5b45" },
+      {
+        id: "outros",
+        label: "Outros",
+        value: 30,
+        color: "color-mix(in srgb, var(--ink) 22%, transparent)",
+      },
+    ],
+  },
+  ano: {
+    active: 184,
+    deferralRate: "98%",
+    segments: [
+      { id: "exame", label: "Em exame", value: 72, color: "var(--primary)" },
+      { id: "publicado", label: "Publicado", value: 31, color: "var(--blush)" },
+      { id: "registrado", label: "Registrado", value: 49, color: "#3e5b45" },
+      {
+        id: "outros",
+        label: "Outros",
+        value: 32,
+        color: "color-mix(in srgb, var(--ink) 22%, transparent)",
+      },
+    ],
+  },
+}
+
+export const portfolioStatus = portfolioByRange.ano
+
+export const avgTimeByRange: Record<AnalyticsRangeId, number[]> = {
+  mes: [36, 34, 33, 31],
+  trimestre: [40, 36, 33, 31],
+  ano: [52, 49, 47, 44, 46, 41, 38, 40, 36, 33, 31, 29],
 }
 
 /** Tempo médio até registro (semanas), jan–dez */
-export const avgTimeToRegister = [52, 49, 47, 44, 46, 41, 38, 40, 36, 33, 31, 29]
+export const avgTimeToRegister = avgTimeByRange.ano
 
-export const topNiceClasses = [
-  { cls: "NCL 3", name: "Cosméticos", count: 38, pct: 100 },
-  { cls: "NCL 41", name: "Educação & Esporte", count: 29, pct: 76 },
-  { cls: "NCL 9", name: "Software", count: 24, pct: 63 },
-  { cls: "NCL 43", name: "Alimentação", count: 19, pct: 50 },
-  { cls: "NCL 44", name: "Saúde", count: 15, pct: 40 },
-]
+type NiceClassRow = {
+  cls: string
+  name: string
+  count: number
+  pct: number
+}
+
+export const topClassesByRange: Record<AnalyticsRangeId, NiceClassRow[]> = {
+  mes: [
+    { cls: "NCL 3", name: "Cosméticos", count: 12, pct: 100 },
+    { cls: "NCL 41", name: "Educação & Esporte", count: 9, pct: 75 },
+    { cls: "NCL 9", name: "Software", count: 7, pct: 58 },
+    { cls: "NCL 43", name: "Alimentação", count: 5, pct: 42 },
+    { cls: "NCL 44", name: "Saúde", count: 4, pct: 33 },
+  ],
+  trimestre: [
+    { cls: "NCL 3", name: "Cosméticos", count: 22, pct: 100 },
+    { cls: "NCL 41", name: "Educação & Esporte", count: 17, pct: 77 },
+    { cls: "NCL 9", name: "Software", count: 14, pct: 64 },
+    { cls: "NCL 43", name: "Alimentação", count: 11, pct: 50 },
+    { cls: "NCL 44", name: "Saúde", count: 8, pct: 36 },
+  ],
+  ano: [
+    { cls: "NCL 3", name: "Cosméticos", count: 38, pct: 100 },
+    { cls: "NCL 41", name: "Educação & Esporte", count: 29, pct: 76 },
+    { cls: "NCL 9", name: "Software", count: 24, pct: 63 },
+    { cls: "NCL 43", name: "Alimentação", count: 19, pct: 50 },
+    { cls: "NCL 44", name: "Saúde", count: 15, pct: 40 },
+  ],
+}
+
+export const topNiceClasses = topClassesByRange.ano
 
 export const casoFilters = [
   { id: "todos", label: "Todos" },

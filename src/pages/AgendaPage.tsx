@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
+import { PageHeader } from "@/components/PageHeader"
 import { Button } from "@/components/ui/button"
 import {
   agendaCalDays,
@@ -12,45 +13,38 @@ import { cn } from "@/lib/utils"
 export function AgendaPage() {
   return (
     <div className="flex flex-col gap-8 sm:gap-10 md:gap-12">
-      <section className="animate-fade-in-up flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-2xl">
-          <p className="text-muted-foreground text-[11px] tracking-[0.16em] uppercase">
-            06 — Operação
-          </p>
-          <h2 className="font-display mt-1.5 text-[1.75rem] leading-[1.15] tracking-tight text-ink sm:mt-2 sm:text-3xl md:text-4xl">
-            Agenda
-          </h2>
-          <p className="text-muted-foreground mt-2.5 text-sm leading-relaxed sm:mt-3 sm:text-[15px]">
-            Reuniões, prazos e rituais do estúdio no calendário.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <span className="font-display text-lg tracking-tight text-ink sm:text-xl">
-            {agendaMonthLabel}
-          </span>
-          <div className="flex gap-1">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-sm"
-              className="border-border/80"
-              aria-label="Mês anterior"
-            >
-              <ChevronLeft className="size-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-sm"
-              className="border-border/80"
-              aria-label="Próximo mês"
-            >
-              <ChevronRight className="size-4" />
-            </Button>
+      <PageHeader
+        eyebrow="06 — Operação"
+        title="Agenda"
+        description="Reuniões, prazos e rituais do estúdio no calendário."
+        action={
+          <div className="flex items-center gap-3">
+            <span className="font-display text-lg tracking-tight text-ink sm:text-xl">
+              {agendaMonthLabel}
+            </span>
+            <div className="flex gap-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                className="border-border/80"
+                aria-label="Mês anterior"
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                className="border-border/80"
+                aria-label="Próximo mês"
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
+        }
+      />
 
       <section
         className="animate-fade-in-up grid gap-8 lg:grid-cols-[1.6fr_1fr] lg:gap-10"
@@ -85,7 +79,7 @@ export function AgendaPage() {
                 <div className="hidden flex-col gap-0.5 sm:flex">
                   {cell.events.map((ev) => (
                     <div
-                      key={ev.label}
+                      key={ev.id}
                       className="truncate rounded px-1 py-0.5 text-[9px] leading-tight font-medium text-white"
                       style={{ background: ev.color }}
                       title={ev.label}
@@ -98,7 +92,7 @@ export function AgendaPage() {
                   <div className="mt-auto flex gap-0.5 sm:hidden">
                     {cell.events.map((ev) => (
                       <span
-                        key={ev.label}
+                        key={ev.id}
                         className="size-1.5 rounded-full"
                         style={{ background: ev.color }}
                         aria-hidden

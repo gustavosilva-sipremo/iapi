@@ -203,6 +203,7 @@ export const tarefaColumns: {
 export const agendaWeekDays = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"]
 
 export type CalEvent = {
+  id: string
   label: string
   color: string
 }
@@ -215,13 +216,13 @@ export type CalDay = {
 
 /** Junho 2026 começa em segunda — grade sem células vazias no início */
 const eventsByDay: Record<number, CalEvent[]> = {
-  26: [{ label: "Reunião · Cobalto", color: "var(--primary)" }],
-  28: [{ label: "Exigência Verbo", color: "var(--primary)" }],
-  29: [{ label: "Concessão Aurora", color: "#bc5a2c" }],
-  2: [{ label: "Call naming Raiz", color: "#3e5b45" }],
-  4: [{ label: "Prazo Tatame", color: "#8a5a1e" }],
-  11: [{ label: "Comprovação Lumière", color: "#3a5560" }],
-  15: [{ label: "Workshop marca", color: "#3e5b45" }],
+  26: [{ id: "ev-26", label: "Reunião · Cobalto", color: "var(--primary)" }],
+  28: [{ id: "ev-28", label: "Exigência Verbo", color: "var(--primary)" }],
+  29: [{ id: "ev-29", label: "Concessão Aurora", color: "#bc5a2c" }],
+  2: [{ id: "ev-2", label: "Call naming Raiz", color: "#3e5b45" }],
+  4: [{ id: "ev-4", label: "Prazo Tatame", color: "#8a5a1e" }],
+  11: [{ id: "ev-11", label: "Comprovação Lumière", color: "#3a5560" }],
+  15: [{ id: "ev-15", label: "Workshop marca", color: "#3e5b45" }],
 }
 
 export const agendaMonthLabel = "Junho 2026"

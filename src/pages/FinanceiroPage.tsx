@@ -1,3 +1,5 @@
+import { KpiStrip } from "@/components/KpiStrip"
+import { PageHeader } from "@/components/PageHeader"
 import { Badge } from "@/components/ui/badge"
 import {
   contasPagar,
@@ -5,69 +7,19 @@ import {
   contasReceber,
   contasReceberTotal,
   finKpis,
-  type TituloStatus,
 } from "@/data/gestao"
-import { cn } from "@/lib/utils"
-
-function kpiValueClass(tone: (typeof finKpis)[number]["tone"]) {
-  if (tone === "emphasis") return "text-ink"
-  if (tone === "success") return "text-[#3f5a3a] dark:text-[#b7c9b0]"
-  if (tone === "danger") return "text-primary"
-  if (tone === "warning") return "text-primary"
-  return "text-ink"
-}
-
-function tituloVariant(status: TituloStatus) {
-  if (status === "Pago") return "success" as const
-  if (status === "Atrasado") return "danger" as const
-  if (status === "Agendado") return "info" as const
-  return "bronze" as const
-}
+import { badgeVariantFromTituloStatus } from "@/lib/status-badge"
 
 export function FinanceiroPage() {
   return (
     <div className="flex flex-col gap-8 sm:gap-10 md:gap-12">
-      <section className="animate-fade-in-up max-w-2xl">
-        <p className="text-muted-foreground text-[11px] tracking-[0.16em] uppercase">
-          09 — Gestão
-        </p>
-        <h2 className="font-display mt-1.5 text-[1.75rem] leading-[1.15] tracking-tight text-ink sm:mt-2 sm:text-3xl md:text-4xl">
-          Financeiro
-        </h2>
-        <p className="text-muted-foreground mt-2.5 text-sm leading-relaxed sm:mt-3 sm:text-[15px]">
-          Contas, contratos e indicadores de receita do estúdio.
-        </p>
-      </section>
+      <PageHeader
+        eyebrow="09 — Gestão"
+        title="Financeiro"
+        description="Contas, contratos e indicadores de receita do estúdio."
+      />
 
-      <section
-        className="animate-fade-in-up grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4"
-        style={{ animationDelay: "60ms" }}
-      >
-        {finKpis.map((kpi) => (
-          <div
-            key={kpi.id}
-            className={cn(
-              "border-border/80 border-b pb-3 sm:pb-4",
-              kpi.tone === "emphasis" && "border-primary/30"
-            )}
-          >
-            <p className="text-muted-foreground text-[11px] tracking-wide sm:text-[12px]">
-              {kpi.label}
-            </p>
-            <p
-              className={cn(
-                "font-display mt-1.5 text-xl tracking-tight tabular-nums sm:mt-2 sm:text-2xl md:text-3xl",
-                kpiValueClass(kpi.tone)
-              )}
-            >
-              {kpi.value}
-            </p>
-            <p className="text-muted-foreground mt-1 text-[11px] sm:mt-1.5 sm:text-xs">
-              {kpi.sub}
-            </p>
-          </div>
-        ))}
-      </section>
+      <KpiStrip items={finKpis} style={{ animationDelay: "60ms" }} />
 
       <section
         className="animate-fade-in-up grid gap-8 sm:gap-10 lg:grid-cols-2"
@@ -98,7 +50,7 @@ export function FinanceiroPage() {
                   <p className="font-mono text-sm font-medium text-ink tabular-nums">
                     {item.valor}
                   </p>
-                  <Badge variant={tituloVariant(item.status)}>
+                  <Badge variant={badgeVariantFromTituloStatus(item.status)}>
                     {item.status}
                   </Badge>
                 </div>
@@ -134,7 +86,7 @@ export function FinanceiroPage() {
                   <p className="font-mono text-sm font-medium text-ink tabular-nums">
                     {item.valor}
                   </p>
-                  <Badge variant={tituloVariant(item.status)}>
+                  <Badge variant={badgeVariantFromTituloStatus(item.status)}>
                     {item.status}
                   </Badge>
                 </div>

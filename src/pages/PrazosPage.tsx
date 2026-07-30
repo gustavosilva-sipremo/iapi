@@ -1,3 +1,5 @@
+import { KpiStrip } from "@/components/KpiStrip"
+import { PageHeader } from "@/components/PageHeader"
 import { Badge } from "@/components/ui/badge"
 import { prazosKpis, prazosLista, type PrazoUrgencia } from "@/data/processos"
 import { cn } from "@/lib/utils"
@@ -9,50 +11,20 @@ function urgBarClass(urgencia: PrazoUrgencia) {
   return "bg-muted-foreground/50"
 }
 
-function kpiValueClass(tone: (typeof prazosKpis)[number]["tone"]) {
-  if (tone === "danger") return "text-primary"
-  if (tone === "warning") return "text-[#a24a1e] dark:text-[#e0a888]"
-  return "text-ink"
-}
-
 export function PrazosPage() {
   return (
     <div className="flex flex-col gap-8 sm:gap-10 md:gap-12">
-      <section className="animate-fade-in-up max-w-2xl">
-        <p className="text-muted-foreground text-[11px] tracking-[0.16em] uppercase">
-          04 — Operação
-        </p>
-        <h2 className="font-display mt-1.5 text-[1.75rem] leading-[1.15] tracking-tight text-ink sm:mt-2 sm:text-3xl md:text-4xl">
-          Prazos
-        </h2>
-        <p className="text-muted-foreground mt-2.5 text-sm leading-relaxed sm:mt-3 sm:text-[15px]">
-          Organizados por urgência. Nada escapa.
-        </p>
-      </section>
+      <PageHeader
+        eyebrow="04 — Operação"
+        title="Prazos"
+        description="Organizados por urgência. Nada escapa."
+      />
 
-      <section
-        className="animate-fade-in-up grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6"
+      <KpiStrip
+        items={prazosKpis}
+        columnsClassName="grid-cols-1 sm:grid-cols-3"
         style={{ animationDelay: "60ms" }}
-      >
-        {prazosKpis.map((kpi) => (
-          <div
-            key={kpi.id}
-            className="border-border/80 flex items-end justify-between border-b pb-3 sm:block sm:pb-4"
-          >
-            <p className="text-muted-foreground text-[11px] tracking-wide sm:text-[12px]">
-              {kpi.label}
-            </p>
-            <p
-              className={cn(
-                "font-display text-2xl tracking-tight tabular-nums sm:mt-2 sm:text-3xl",
-                kpiValueClass(kpi.tone)
-              )}
-            >
-              {kpi.value}
-            </p>
-          </div>
-        ))}
-      </section>
+      />
 
       <section
         className="animate-fade-in-up"

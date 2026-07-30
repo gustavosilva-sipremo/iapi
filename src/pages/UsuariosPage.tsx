@@ -1,41 +1,26 @@
 import { Plus } from "lucide-react"
 
+import { PageHeader } from "@/components/PageHeader"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  perfisLista,
-  usuariosLista,
-  type UsuarioStatus,
-} from "@/data/gestao"
-
-function statusVariant(status: UsuarioStatus) {
-  if (status === "Ativo") return "success" as const
-  if (status === "Convidado") return "bronze" as const
-  return "muted" as const
-}
+import { perfisLista, usuariosLista } from "@/data/gestao"
+import { badgeVariantFromUsuarioStatus } from "@/lib/status-badge"
 
 export function UsuariosPage() {
   return (
     <div className="flex flex-col gap-8 sm:gap-10 md:gap-12">
-      <section className="animate-fade-in-up flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-2xl">
-          <p className="text-muted-foreground text-[11px] tracking-[0.16em] uppercase">
-            10 — Gestão
-          </p>
-          <h2 className="font-display mt-1.5 text-[1.75rem] leading-[1.15] tracking-tight text-ink sm:mt-2 sm:text-3xl md:text-4xl">
-            Usuários & perfis
-          </h2>
-          <p className="text-muted-foreground mt-2.5 text-sm leading-relaxed sm:mt-3 sm:text-[15px]">
-            Controle de acesso da equipe — quem vê o quê no estúdio.
-          </p>
-        </div>
-
-        <Button type="button" className="w-fit shrink-0">
-          <Plus className="size-4" />
-          Convidar usuário
-        </Button>
-      </section>
+      <PageHeader
+        eyebrow="10 — Gestão"
+        title="Usuários & perfis"
+        description="Controle de acesso da equipe — quem vê o quê no estúdio."
+        action={
+          <Button type="button" className="w-fit shrink-0">
+            <Plus className="size-4" />
+            Convidar usuário
+          </Button>
+        }
+      />
 
       <section
         className="animate-fade-in-up grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
@@ -105,7 +90,7 @@ export function UsuariosPage() {
                   <span className="text-sm text-ink">{user.perfil}</span>
                 </div>
                 <div>
-                  <Badge variant={statusVariant(user.status)}>
+                  <Badge variant={badgeVariantFromUsuarioStatus(user.status)}>
                     {user.status}
                   </Badge>
                 </div>
@@ -133,7 +118,7 @@ export function UsuariosPage() {
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-medium text-ink">{user.nome}</p>
                   <Badge
-                    variant={statusVariant(user.status)}
+                    variant={badgeVariantFromUsuarioStatus(user.status)}
                     className="shrink-0"
                   >
                     {user.status}

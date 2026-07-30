@@ -1,3 +1,5 @@
+import { initials } from "@/lib/initials"
+
 export const finKpis = [
   {
     id: "receita",
@@ -193,15 +195,6 @@ const perfilColor: Record<string, string> = {
   Analista: "#3e5b45",
   Financeiro: "#bc5a2c",
   Comercial: "#8a5a1e",
-}
-
-function initials(nome: string) {
-  return nome
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
 }
 
 export const usuariosLista: Usuario[] = [

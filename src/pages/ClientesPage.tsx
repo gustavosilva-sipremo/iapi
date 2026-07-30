@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { Plus, Search } from "lucide-react"
 
+import { FilterChips } from "@/components/FilterChips"
+import { PageHeader } from "@/components/PageHeader"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,53 +12,37 @@ import {
   clientesLista,
   matchesClienteFilter,
   type ClienteFilterId,
-  type ClienteStatus,
 } from "@/data/relacionamento"
-import { cn } from "@/lib/utils"
-
-function statusVariant(status: ClienteStatus) {
-  if (status === "Ativo") return "success" as const
-  if (status === "Prospect") return "bronze" as const
-  return "muted" as const
-}
+import { badgeVariantFromClienteStatus } from "@/lib/status-badge"
 
 export function ClientesPage() {
   const [filter, setFilter] = useState<ClienteFilterId>("todos")
   const [query, setQuery] = useState("")
 
-  const rows = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return clientesLista.filter((cliente) => {
-      if (!matchesClienteFilter(cliente, filter)) return false
-      if (!q) return true
-      return (
-        cliente.nome.toLowerCase().includes(q) ||
-        cliente.segmento.toLowerCase().includes(q) ||
-        cliente.contato.toLowerCase().includes(q)
-      )
-    })
-  }, [filter, query])
+  const q = query.trim().toLowerCase()
+  const rows = clientesLista.filter((cliente) => {
+    if (!matchesClienteFilter(cliente, filter)) return false
+    if (!q) return true
+    return (
+      cliente.nome.toLowerCase().includes(q) ||
+      cliente.segmento.toLowerCase().includes(q) ||
+      cliente.contato.toLowerCase().includes(q)
+    )
+  })
 
   return (
     <div className="flex flex-col gap-8 sm:gap-10 md:gap-12">
-      <section className="animate-fade-in-up flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-2xl">
-          <p className="text-muted-foreground text-[11px] tracking-[0.16em] uppercase">
-            07 — Relacionamento
-          </p>
-          <h2 className="font-display mt-1.5 text-[1.75rem] leading-[1.15] tracking-tight text-ink sm:mt-2 sm:text-3xl md:text-4xl">
-            Clientes
-          </h2>
-          <p className="text-muted-foreground mt-2.5 text-sm leading-relaxed sm:mt-3 sm:text-[15px]">
-            CRM editorial com histórico de relacionamento e carteira de marcas.
-          </p>
-        </div>
-
-        <Button type="button" className="w-fit shrink-0">
-          <Plus className="size-4" />
-          Novo cliente
-        </Button>
-      </section>
+      <PageHeader
+        eyebrow="07 — Relacionamento"
+        title="Clientes"
+        description="CRM editorial com histórico de relacionamento e carteira de marcas."
+        action={
+          <Button type="button" className="w-fit shrink-0">
+            <Plus className="size-4" />
+            Novo cliente
+          </Button>
+        }
+      />
 
       <section
         className="animate-fade-in-up flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
@@ -73,26 +59,12 @@ export function ClientesPage() {
           />
         </div>
 
-        <div
-          className="flex flex-wrap gap-1.5"
-          role="group"
+        <FilterChips
+          options={clienteFilters}
+          value={filter}
+          onChange={setFilter}
           aria-label="Filtrar clientes"
-        >
-          {clienteFilters.map((item) => (
-            <Button
-              key={item.id}
-              type="button"
-              size="sm"
-              variant={filter === item.id ? "default" : "outline"}
-              className={cn(
-                filter !== item.id && "border-border/80 bg-transparent"
-              )}
-              onClick={() => setFilter(item.id)}
-            >
-              {item.label}
-            </Button>
-          ))}
-        </div>
+        />
       </section>
 
       <section
@@ -137,7 +109,9 @@ export function ClientesPage() {
                     {cliente.marcas}
                   </p>
                   <div>
-                    <Badge variant={statusVariant(cliente.status)}>
+                    <Badge
+                      variant={badgeVariantFromClienteStatus(cliente.status)}
+                    >
                       {cliente.status}
                     </Badge>
                   </div>
@@ -169,7 +143,7 @@ export function ClientesPage() {
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-sm font-medium text-ink">{cliente.nome}</p>
                     <Badge
-                      variant={statusVariant(cliente.status)}
+                      variant={badgeVariantFromClienteStatus(cliente.status)}
                       className="shrink-0"
                     >
                       {cliente.status}

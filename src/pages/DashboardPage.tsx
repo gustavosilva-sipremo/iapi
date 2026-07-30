@@ -3,12 +3,14 @@ import {
   upcomingDeadlines,
   priorityTasks,
   processPipeline,
-  type DeadlineUrgency,
   type TaskPriority,
 } from "@/data/mock"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { cn } from "@/lib/utils"
+import {
+  badgeVariantFromDeadlineUrgency,
+  badgeVariantFromPrioridade,
+} from "@/lib/status-badge"
 
 function formatToday(): string {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -16,12 +18,6 @@ function formatToday(): string {
     day: "numeric",
     month: "long",
   }).format(new Date())
-}
-
-function urgencyVariant(urgency: DeadlineUrgency) {
-  if (urgency === "critico") return "danger" as const
-  if (urgency === "atencao") return "soft" as const
-  return "outline" as const
 }
 
 function priorityLabel(priority: TaskPriority) {
@@ -61,10 +57,11 @@ export function DashboardPage() {
               {kpi.label}
             </p>
             <p
-              className={cn(
-                "font-display mt-1.5 text-2xl tracking-tight sm:mt-2 sm:text-3xl",
-                kpi.tone === "danger" ? "text-primary" : "text-ink"
-              )}
+              className={
+                kpi.tone === "danger"
+                  ? "font-display mt-1.5 text-2xl tracking-tight text-primary sm:mt-2 sm:text-3xl"
+                  : "font-display mt-1.5 text-2xl tracking-tight text-ink sm:mt-2 sm:text-3xl"
+              }
             >
               {kpi.value}
             </p>
@@ -175,7 +172,7 @@ export function DashboardPage() {
                   </p>
                 </div>
                 <div className="flex shrink-0 items-start sm:flex-col sm:items-end sm:gap-1.5">
-                  <Badge variant={urgencyVariant(item.urgency)}>
+                  <Badge variant={badgeVariantFromDeadlineUrgency(item.urgency)}>
                     {item.due}
                   </Badge>
                 </div>
@@ -204,7 +201,7 @@ export function DashboardPage() {
                   </p>
                 </div>
                 <Badge
-                  variant={task.priority === "alta" ? "soft" : "outline"}
+                  variant={badgeVariantFromPrioridade(task.priority)}
                   className="w-fit shrink-0"
                 >
                   {priorityLabel(task.priority)}

@@ -1,22 +1,50 @@
+import { lazy } from "react"
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 import { AppShell } from "@/components/layout/AppShell"
 import { AuthProvider } from "@/hooks/use-auth"
 import { ThemeProvider } from "@/hooks/use-theme"
-import { AnalyticsPage } from "@/pages/AnalyticsPage"
-import { AgendaPage } from "@/pages/AgendaPage"
-import { BuscaPage } from "@/pages/BuscaPage"
-import { CasosPage } from "@/pages/CasosPage"
-import { ClientesPage } from "@/pages/ClientesPage"
 import { DashboardPage } from "@/pages/DashboardPage"
-import { DominiosPage } from "@/pages/DominiosPage"
-import { FinanceiroPage } from "@/pages/FinanceiroPage"
-import { LeadsPage } from "@/pages/LeadsPage"
 import { LoginPage } from "@/pages/LoginPage"
-import { MonitoramentoPage } from "@/pages/MonitoramentoPage"
-import { PrazosPage } from "@/pages/PrazosPage"
-import { TarefasPage } from "@/pages/TarefasPage"
-import { UsuariosPage } from "@/pages/UsuariosPage"
+
+const AnalyticsPage = lazy(() =>
+  import("@/pages/AnalyticsPage").then((m) => ({ default: m.AnalyticsPage }))
+)
+const AgendaPage = lazy(() =>
+  import("@/pages/AgendaPage").then((m) => ({ default: m.AgendaPage }))
+)
+const BuscaPage = lazy(() =>
+  import("@/pages/BuscaPage").then((m) => ({ default: m.BuscaPage }))
+)
+const CasosPage = lazy(() =>
+  import("@/pages/CasosPage").then((m) => ({ default: m.CasosPage }))
+)
+const ClientesPage = lazy(() =>
+  import("@/pages/ClientesPage").then((m) => ({ default: m.ClientesPage }))
+)
+const DominiosPage = lazy(() =>
+  import("@/pages/DominiosPage").then((m) => ({ default: m.DominiosPage }))
+)
+const FinanceiroPage = lazy(() =>
+  import("@/pages/FinanceiroPage").then((m) => ({ default: m.FinanceiroPage }))
+)
+const LeadsPage = lazy(() =>
+  import("@/pages/LeadsPage").then((m) => ({ default: m.LeadsPage }))
+)
+const MonitoramentoPage = lazy(() =>
+  import("@/pages/MonitoramentoPage").then((m) => ({
+    default: m.MonitoramentoPage,
+  }))
+)
+const PrazosPage = lazy(() =>
+  import("@/pages/PrazosPage").then((m) => ({ default: m.PrazosPage }))
+)
+const TarefasPage = lazy(() =>
+  import("@/pages/TarefasPage").then((m) => ({ default: m.TarefasPage }))
+)
+const UsuariosPage = lazy(() =>
+  import("@/pages/UsuariosPage").then((m) => ({ default: m.UsuariosPage }))
+)
 
 export default function App() {
   return (

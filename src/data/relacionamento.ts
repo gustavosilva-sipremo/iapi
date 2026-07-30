@@ -1,3 +1,5 @@
+import { initials } from "@/lib/initials"
+
 export const clienteFilters = [
   { id: "todos", label: "Todos" },
   { id: "ativos", label: "Ativos" },
@@ -30,15 +32,6 @@ const avatars = [
   "#5e6b52",
   "#8a4a52",
 ]
-
-function initials(nome: string) {
-  return nome
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-}
 
 export const clientesLista: Cliente[] = [
   ["Lumière Cosméticos", "PJ", "Beleza & Cosméticos", "contato@lumiere.com", 4, "Ativo", "2021"],
