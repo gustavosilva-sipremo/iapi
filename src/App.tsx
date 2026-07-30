@@ -2,12 +2,15 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 import { AppShell } from "@/components/layout/AppShell"
 import { AnalyticsPage } from "@/pages/AnalyticsPage"
+import { AgendaPage } from "@/pages/AgendaPage"
 import { BuscaPage } from "@/pages/BuscaPage"
 import { CasosPage } from "@/pages/CasosPage"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { DominiosPage } from "@/pages/DominiosPage"
 import { MonitoramentoPage } from "@/pages/MonitoramentoPage"
+import { PrazosPage } from "@/pages/PrazosPage"
 import { PlaceholderPage } from "@/pages/PlaceholderPage"
+import { TarefasPage } from "@/pages/TarefasPage"
 
 export default function App() {
   return (
@@ -20,9 +23,9 @@ export default function App() {
           <Route path="monitoramento" element={<MonitoramentoPage />} />
           <Route path="dominios" element={<DominiosPage />} />
           <Route path="casos" element={<CasosPage />} />
-          <Route path="prazos" element={<PlaceholderPage />} />
-          <Route path="tarefas" element={<PlaceholderPage />} />
-          <Route path="agenda" element={<PlaceholderPage />} />
+          <Route path="prazos" element={<PrazosPage />} />
+          <Route path="tarefas" element={<TarefasPage />} />
+          <Route path="agenda" element={<AgendaPage />} />
           <Route path="clientes" element={<PlaceholderPage />} />
           <Route path="leads" element={<PlaceholderPage />} />
           <Route path="financeiro" element={<PlaceholderPage />} />
