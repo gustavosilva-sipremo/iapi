@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react"
 import { createPortal } from "react-dom"
 import {
   DndContext,
@@ -24,6 +32,7 @@ import { CSS } from "@dnd-kit/utilities"
 
 import {
   findColumnOfItem,
+  findItemLocation,
   type KanbanBoardState,
   type KanbanItemBase,
 } from "@/hooks/use-kanban-state"
@@ -88,7 +97,6 @@ function SortableCard({
     <li
       ref={setNodeRef}
       style={{
-        // Keep the source card as a static placeholder; the portal overlay follows the cursor.
         transform: CSS.Transform.toString(isDragging ? null : transform),
         transition: isDragging ? undefined : transition,
       }}
@@ -111,16 +119,7 @@ function SortableCard({
   )
 }
 
-function DroppableColumn<T extends KanbanItemBase>({
-  column,
-  items,
-  meta,
-  emptyLabel,
-  isOver,
-  renderCard,
-  onCardOpen,
-  activeId,
-}: {
+type ColumnProps<T extends KanbanItemBase> = {
   column: KanbanColumnDef
   items: T[]
   meta?: ReactNode
@@ -129,7 +128,18 @@ function DroppableColumn<T extends KanbanItemBase>({
   renderCard: (item: T, isDragging: boolean) => ReactNode
   onCardOpen?: (item: T) => void
   activeId: UniqueIdentifier | null
-}) {
+}
+
+function DroppableColumnInner<T extends KanbanItemBase>({
+  column,
+  items,
+  meta,
+  emptyLabel,
+  isOver,
+  renderCard,
+  onCardOpen,
+  activeId,
+}: ColumnProps<T>) {
   const { setNodeRef } = useDroppable({ id: column.id })
   const itemIds = useMemo(() => items.map((item) => item.id), [items])
 
@@ -185,6 +195,8 @@ function DroppableColumn<T extends KanbanItemBase>({
   )
 }
 
+const DroppableColumn = memo(DroppableColumnInner) as typeof DroppableColumnInner
+
 export function KanbanBoard<T extends KanbanItemBase>({
   columns,
   board,
@@ -200,80 +212,117 @@ export function KanbanBoard<T extends KanbanItemBase>({
   const [overColumnId, setOverColumnId] = useState<string | null>(null)
   const [overlayWidth, setOverlayWidth] = useState<number | undefined>()
 
+  const boardRef = useRef(board)
+  const onMoveRef = useRef(onMove)
+  const dragOriginColumnRef = useRef<string | null>(null)
+  boardRef.current = board
+  onMoveRef.current = onMove
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 6 },
+      activationConstraint: { distance: 8 },
     })
   )
 
   const activeItem = useMemo(() => {
     if (!activeId) return null
-    const col = findColumnOfItem(board, String(activeId))
-    if (!col) return null
-    return board[col]?.find((item) => item.id === activeId) ?? null
+    return findItemLocation(board, String(activeId))?.item ?? null
   }, [activeId, board])
 
-  function resolveOverColumn(
-    overId: UniqueIdentifier | undefined
-  ): string | null {
-    if (!overId) return null
-    const id = String(overId)
-    if (board[id]) return id
-    return findColumnOfItem(board, id)
-  }
+  const resolveOverColumn = useCallback(
+    (overId: UniqueIdentifier | undefined, state: KanbanBoardState<T>) => {
+      if (!overId) return null
+      const id = String(overId)
+      if (state[id]) return id
+      return findColumnOfItem(state, id)
+    },
+    []
+  )
 
-  function resolveOverIndex(
-    overId: UniqueIdentifier | undefined,
-    columnId: string
-  ): number {
-    if (!overId) return board[columnId]?.length ?? 0
-    const id = String(overId)
-    if (board[id]) return board[columnId]?.length ?? 0
-    const index = board[columnId]?.findIndex((item) => item.id === id) ?? -1
-    return index >= 0 ? index : (board[columnId]?.length ?? 0)
-  }
+  const resolveOverIndex = useCallback(
+    (
+      overId: UniqueIdentifier | undefined,
+      columnId: string,
+      state: KanbanBoardState<T>
+    ) => {
+      const items = state[columnId]
+      if (!overId || !items) return items?.length ?? 0
+      const id = String(overId)
+      if (state[id]) return items.length
+      const index = items.findIndex((item) => item.id === id)
+      return index >= 0 ? index : items.length
+    },
+    []
+  )
 
-  function handleDragStart(event: DragStartEvent) {
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const state = boardRef.current
+    dragOriginColumnRef.current = findColumnOfItem(state, String(event.active.id))
     setActiveId(event.active.id)
     const width =
       event.active.rect.current.initial?.width ??
       event.active.rect.current.translated?.width
     setOverlayWidth(width)
-  }
+  }, [])
 
-  function handleDragOver(event: DragOverEvent) {
-    const { active, over } = event
-    if (!over) {
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { active, over } = event
+      const state = boardRef.current
+
+      if (!over) {
+        setOverColumnId(null)
+        return
+      }
+
+      const activeColumnId = findColumnOfItem(state, String(active.id))
+      const nextColumnId = resolveOverColumn(over.id, state)
+      setOverColumnId(nextColumnId)
+
+      // Cross-column only during dragOver — same-column reorder waits for dragEnd.
+      if (!activeColumnId || !nextColumnId || activeColumnId === nextColumnId) {
+        return
+      }
+
+      const overIndex = resolveOverIndex(over.id, nextColumnId, state)
+      onMoveRef.current(String(active.id), nextColumnId, overIndex)
+    },
+    [resolveOverColumn, resolveOverIndex]
+  )
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event
+      const state = boardRef.current
+      const originColumnId = dragOriginColumnRef.current
+      dragOriginColumnRef.current = null
+      setActiveId(null)
       setOverColumnId(null)
-      return
-    }
+      setOverlayWidth(undefined)
+      if (!over) return
 
-    const activeColumnId = findColumnOfItem(board, String(active.id))
-    const nextColumnId = resolveOverColumn(over.id)
-    setOverColumnId(nextColumnId)
+      const activeColumnId = findColumnOfItem(state, String(active.id))
+      const nextColumnId = resolveOverColumn(over.id, state)
+      if (!activeColumnId || !nextColumnId) return
 
-    if (!activeColumnId || !nextColumnId || activeColumnId === nextColumnId) {
-      return
-    }
+      // Cross-column already applied in dragOver. Skip end-reorder if the card
+      // left its origin column (avoids jumping to the end when dropping on the
+      // column shell after a cross-column move).
+      if (activeColumnId !== nextColumnId) return
+      if (originColumnId !== activeColumnId) return
 
-    const overIndex = resolveOverIndex(over.id, nextColumnId)
-    onMove(String(active.id), nextColumnId, overIndex)
-  }
+      const overIndex = resolveOverIndex(over.id, nextColumnId, state)
+      onMoveRef.current(String(active.id), nextColumnId, overIndex)
+    },
+    [resolveOverColumn, resolveOverIndex]
+  )
 
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event
+  const handleDragCancel = useCallback(() => {
+    dragOriginColumnRef.current = null
     setActiveId(null)
     setOverColumnId(null)
     setOverlayWidth(undefined)
-    if (!over) return
-
-    const activeColumnId = findColumnOfItem(board, String(active.id))
-    const nextColumnId = resolveOverColumn(over.id)
-    if (!activeColumnId || !nextColumnId) return
-
-    const overIndex = resolveOverIndex(over.id, nextColumnId)
-    onMove(String(active.id), nextColumnId, overIndex)
-  }
+  }, [])
 
   const overlay = (
     <DragOverlay dropAnimation={dropAnimation} style={{ cursor: "grabbing" }}>
@@ -295,11 +344,7 @@ export function KanbanBoard<T extends KanbanItemBase>({
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
-      onDragCancel={() => {
-        setActiveId(null)
-        setOverColumnId(null)
-        setOverlayWidth(undefined)
-      }}
+      onDragCancel={handleDragCancel}
     >
       <div className={cn(className)}>
         <div className={cn("grid gap-4 sm:gap-5", columnsClassName)}>

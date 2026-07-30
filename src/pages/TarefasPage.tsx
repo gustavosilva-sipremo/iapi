@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { Plus } from "lucide-react"
 
 import {
@@ -17,7 +17,11 @@ import {
   type TarefaItem,
   type TarefaStatus,
 } from "@/data/processos"
-import { groupByColumn, useKanbanState } from "@/hooks/use-kanban-state"
+import {
+  findItemLocation,
+  groupByColumn,
+  useKanbanState,
+} from "@/hooks/use-kanban-state"
 import { formatDateBr } from "@/lib/date"
 import { badgeVariantFromPrioridade } from "@/lib/status-badge"
 
@@ -68,16 +72,54 @@ export function TarefasPage() {
     useKanbanState(INITIAL_BOARD)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const columns = useMemo(() => BOARD_COLUMNS, [])
 
-  const selectedItem = useMemo(() => {
-    if (!selectedId) return null
-    for (const items of Object.values(board)) {
-      const found = items.find((item) => item.id === selectedId)
-      if (found) return found
-    }
-    return null
-  }, [board, selectedId])
+  const selectedItem = useMemo(
+    () =>
+      selectedId ? (findItemLocation(board, selectedId)?.item ?? null) : null,
+    [board, selectedId]
+  )
+
+  const handleMove = useCallback(
+    (activeId: string, overColumnId: string, overIndex: number) => {
+      moveItem(activeId, overColumnId, overIndex, (item, status) => ({
+        ...item,
+        status: status as TarefaStatus,
+      }))
+    },
+    [moveItem]
+  )
+
+  const handleCardOpen = useCallback((item: TarefaItem) => {
+    setSelectedId(item.id)
+  }, [])
+
+  const handleCreate = useCallback(
+    (item: TarefaItem) => addItem(item.status, item),
+    [addItem]
+  )
+
+  const handleSave = useCallback(
+    (item: TarefaItem) => updateItem(item.id, item, item.status),
+    [updateItem]
+  )
+
+  const handleDelete = useCallback(
+    (id: string) => {
+      removeItem(id)
+      setSelectedId(null)
+    },
+    [removeItem]
+  )
+
+  const renderCard = useCallback(
+    (item: TarefaItem) => <TarefaCard item={item} />,
+    []
+  )
+
+  const getColumnMeta = useCallback(
+    (_id: string, items: TarefaItem[]) => items.length,
+    []
+  )
 
   return (
     <div className="flex flex-col gap-8 sm:gap-10 md:gap-12">
@@ -99,31 +141,21 @@ export function TarefasPage() {
 
       <section className="animate-fade-in-up" style={{ animationDelay: "80ms" }}>
         <KanbanBoard<TarefaItem>
-          columns={columns}
+          columns={BOARD_COLUMNS}
           board={board}
-          onMove={(activeId, overColumnId, overIndex) => {
-            moveItem(
-              activeId,
-              overColumnId as TarefaStatus,
-              overIndex,
-              (item, status) => ({
-                ...item,
-                status: status as TarefaStatus,
-              })
-            )
-          }}
-          onCardOpen={(item) => setSelectedId(item.id)}
-          getColumnMeta={(_id, items) => items.length}
+          onMove={handleMove}
+          onCardOpen={handleCardOpen}
+          getColumnMeta={getColumnMeta}
           emptyLabel="Nenhuma tarefa"
           columnsClassName="grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4"
-          renderCard={(item) => <TarefaCard item={item} />}
+          renderCard={renderCard}
         />
       </section>
 
       <NovaTarefaSheet
         open={sheetOpen}
         onOpenChange={setSheetOpen}
-        onCreate={(item) => addItem(item.status, item)}
+        onCreate={handleCreate}
       />
 
       <TarefaDetailModal
@@ -132,11 +164,8 @@ export function TarefasPage() {
         onOpenChange={(open) => {
           if (!open) setSelectedId(null)
         }}
-        onSave={(item) => updateItem(item.id, item, item.status)}
-        onDelete={(id) => {
-          removeItem(id)
-          setSelectedId(null)
-        }}
+        onSave={handleSave}
+        onDelete={handleDelete}
       />
     </div>
   )

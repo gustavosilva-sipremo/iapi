@@ -37,7 +37,7 @@ export function DatePicker({
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const selected = parseIsoDate(value)
-  const today = todayIso()
+  const today = useMemo(() => todayIso(), [])
   const initial = selected ?? parseIsoDate(today)!
   const [viewY, setViewY] = useState(initial.y)
   const [viewM, setViewM] = useState(initial.m)
@@ -47,7 +47,7 @@ export function DatePicker({
     const base = selected ?? parseIsoDate(today)!
     setViewY(base.y)
     setViewM(base.m)
-  }, [open, selected?.y, selected?.m, selected?.d, today])
+  }, [open, selected, today])
 
   useEffect(() => {
     if (!open) return

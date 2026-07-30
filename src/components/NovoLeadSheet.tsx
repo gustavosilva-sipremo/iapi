@@ -1,6 +1,11 @@
 import { useId, useState, type FormEvent } from "react"
 
 import { DatePicker } from "@/components/DatePicker"
+import {
+  ChipButton,
+  FormField,
+} from "@/components/kanban/FormPrimitives"
+import type { LeadKanbanItem } from "@/components/kanban/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -10,17 +15,17 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
-import { leadColumns, type LeadItem } from "@/data/relacionamento"
+import { leadColumns } from "@/data/relacionamento"
 import { todayIso } from "@/lib/date"
 import { formatBrl, parseBrl } from "@/lib/money"
-import { cn } from "@/lib/utils"
 
 const ORIGENS = ["Indicação", "Site", "LinkedIn", "Evento", "Manual"] as const
+const DEFAULT_COLUMN = leadColumns[0]?.id ?? "novo"
 
 type NovoLeadSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onCreate: (item: LeadItem & { columnId: string }) => void
+  onCreate: (item: LeadKanbanItem) => void
 }
 
 export function NovoLeadSheet({
@@ -36,7 +41,7 @@ export function NovoLeadSheet({
   const [descricao, setDescricao] = useState("")
   const [prazo, setPrazo] = useState(todayIso())
   const [origem, setOrigem] = useState<(typeof ORIGENS)[number]>("Manual")
-  const [columnId, setColumnId] = useState(leadColumns[0]?.id ?? "novo")
+  const [columnId, setColumnId] = useState(DEFAULT_COLUMN)
 
   function reset() {
     setEmpresa("")
@@ -46,7 +51,7 @@ export function NovoLeadSheet({
     setDescricao("")
     setPrazo(todayIso())
     setOrigem("Manual")
-    setColumnId(leadColumns[0]?.id ?? "novo")
+    setColumnId(DEFAULT_COLUMN)
   }
 
   function handleSubmit(event: FormEvent) {
@@ -59,7 +64,7 @@ export function NovoLeadSheet({
       return
     }
 
-    const item: LeadItem & { columnId: string } = {
+    onCreate({
       id: `l-${crypto.randomUUID()}`,
       empresa: trimmedEmpresa,
       nome: trimmedNome,
@@ -69,9 +74,7 @@ export function NovoLeadSheet({
       prazo,
       descricao: descricao.trim(),
       columnId,
-    }
-
-    onCreate(item)
+    })
     reset()
     onOpenChange(false)
   }
@@ -100,7 +103,7 @@ export function NovoLeadSheet({
           onSubmit={handleSubmit}
           className="flex flex-1 flex-col gap-4 overflow-y-auto p-4"
         >
-          <Field label="Empresa" htmlFor={`${formId}-empresa`}>
+          <FormField label="Empresa" htmlFor={`${formId}-empresa`}>
             <Input
               id={`${formId}-empresa`}
               value={empresa}
@@ -109,9 +112,9 @@ export function NovoLeadSheet({
               required
               className="bg-card/50"
             />
-          </Field>
+          </FormField>
 
-          <Field label="Contato" htmlFor={`${formId}-nome`}>
+          <FormField label="Contato" htmlFor={`${formId}-nome`}>
             <Input
               id={`${formId}-nome`}
               value={nome}
@@ -120,9 +123,9 @@ export function NovoLeadSheet({
               required
               className="bg-card/50"
             />
-          </Field>
+          </FormField>
 
-          <Field label="Interesse" htmlFor={`${formId}-interesse`}>
+          <FormField label="Interesse" htmlFor={`${formId}-interesse`}>
             <Input
               id={`${formId}-interesse`}
               value={interesse}
@@ -131,9 +134,9 @@ export function NovoLeadSheet({
               required
               className="bg-card/50"
             />
-          </Field>
+          </FormField>
 
-          <Field label="Valor (R$)" htmlFor={`${formId}-valor`}>
+          <FormField label="Valor (R$)" htmlFor={`${formId}-valor`}>
             <Input
               id={`${formId}-valor`}
               value={valor}
@@ -143,13 +146,13 @@ export function NovoLeadSheet({
               required
               className="bg-card/50"
             />
-          </Field>
+          </FormField>
 
-          <Field label="Follow-up">
+          <FormField label="Follow-up">
             <DatePicker value={prazo} onChange={setPrazo} />
-          </Field>
+          </FormField>
 
-          <Field label="Notas" htmlFor={`${formId}-desc`}>
+          <FormField label="Notas" htmlFor={`${formId}-desc`}>
             <Textarea
               id={`${formId}-desc`}
               value={descricao}
@@ -157,9 +160,9 @@ export function NovoLeadSheet({
               placeholder="Contexto opcional…"
               className="bg-card/50"
             />
-          </Field>
+          </FormField>
 
-          <Field label="Origem">
+          <FormField label="Origem">
             <div className="flex flex-wrap gap-1.5">
               {ORIGENS.map((option) => (
                 <ChipButton
@@ -171,9 +174,9 @@ export function NovoLeadSheet({
                 </ChipButton>
               ))}
             </div>
-          </Field>
+          </FormField>
 
-          <Field label="Etapa inicial">
+          <FormField label="Etapa inicial">
             <div className="flex flex-wrap gap-1.5">
               {leadColumns.map((col) => (
                 <ChipButton
@@ -185,7 +188,7 @@ export function NovoLeadSheet({
                 </ChipButton>
               ))}
             </div>
-          </Field>
+          </FormField>
 
           <div className="mt-auto flex gap-2 pt-2">
             <Button
@@ -203,49 +206,5 @@ export function NovoLeadSheet({
         </form>
       </SheetContent>
     </Sheet>
-  )
-}
-
-function Field({
-  label,
-  htmlFor,
-  children,
-}: {
-  label: string
-  htmlFor?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label
-        htmlFor={htmlFor}
-        className="text-muted-foreground text-[11px] tracking-[0.12em] uppercase"
-      >
-        {label}
-      </label>
-      {children}
-    </div>
-  )
-}
-
-function ChipButton({
-  active,
-  children,
-  onClick,
-}: {
-  active: boolean
-  children: React.ReactNode
-  onClick: () => void
-}) {
-  return (
-    <Button
-      type="button"
-      size="sm"
-      variant={active ? "default" : "outline"}
-      className={cn(!active && "border-border/80 bg-transparent")}
-      onClick={onClick}
-    >
-      {children}
-    </Button>
   )
 }

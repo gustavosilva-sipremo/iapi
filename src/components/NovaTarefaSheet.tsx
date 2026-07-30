@@ -1,6 +1,10 @@
 import { useId, useState, type FormEvent } from "react"
 
 import { DatePicker } from "@/components/DatePicker"
+import {
+  ChipButton,
+  FormField,
+} from "@/components/kanban/FormPrimitives"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -13,7 +17,6 @@ import { Textarea } from "@/components/ui/textarea"
 import type { TarefaItem, TarefaPrioridade, TarefaStatus } from "@/data/processos"
 import { todayIso } from "@/lib/date"
 import { initials } from "@/lib/initials"
-import { cn } from "@/lib/utils"
 
 const AVATAR_COLORS = [
   "#8c1111",
@@ -69,7 +72,7 @@ export function NovaTarefaSheet({
     const trimmedResponsavel = responsavel.trim()
     if (!trimmedTitulo || !trimmedCliente || !trimmedResponsavel) return
 
-    const item: TarefaItem = {
+    onCreate({
       id: `t-${crypto.randomUUID()}`,
       titulo: trimmedTitulo,
       cliente: trimmedCliente,
@@ -80,9 +83,7 @@ export function NovaTarefaSheet({
       prazo,
       descricao: descricao.trim(),
       avColor: AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)],
-    }
-
-    onCreate(item)
+    })
     reset()
     onOpenChange(false)
   }
@@ -111,7 +112,7 @@ export function NovaTarefaSheet({
           onSubmit={handleSubmit}
           className="flex flex-1 flex-col gap-4 overflow-y-auto p-4"
         >
-          <Field label="Título" htmlFor={`${formId}-titulo`}>
+          <FormField label="Título" htmlFor={`${formId}-titulo`}>
             <Input
               id={`${formId}-titulo`}
               value={titulo}
@@ -120,9 +121,9 @@ export function NovaTarefaSheet({
               required
               className="bg-card/50"
             />
-          </Field>
+          </FormField>
 
-          <Field label="Cliente" htmlFor={`${formId}-cliente`}>
+          <FormField label="Cliente" htmlFor={`${formId}-cliente`}>
             <Input
               id={`${formId}-cliente`}
               value={cliente}
@@ -131,9 +132,9 @@ export function NovaTarefaSheet({
               required
               className="bg-card/50"
             />
-          </Field>
+          </FormField>
 
-          <Field label="Responsável" htmlFor={`${formId}-resp`}>
+          <FormField label="Responsável" htmlFor={`${formId}-resp`}>
             <Input
               id={`${formId}-resp`}
               value={responsavel}
@@ -142,13 +143,13 @@ export function NovaTarefaSheet({
               required
               className="bg-card/50"
             />
-          </Field>
+          </FormField>
 
-          <Field label="Prazo">
+          <FormField label="Prazo">
             <DatePicker value={prazo} onChange={setPrazo} />
-          </Field>
+          </FormField>
 
-          <Field label="Descrição" htmlFor={`${formId}-desc`}>
+          <FormField label="Descrição" htmlFor={`${formId}-desc`}>
             <Textarea
               id={`${formId}-desc`}
               value={descricao}
@@ -156,9 +157,9 @@ export function NovaTarefaSheet({
               placeholder="Contexto opcional…"
               className="bg-card/50"
             />
-          </Field>
+          </FormField>
 
-          <Field label="Prioridade">
+          <FormField label="Prioridade">
             <div className="flex flex-wrap gap-1.5">
               {PRIORIDADES.map((option) => (
                 <ChipButton
@@ -170,9 +171,9 @@ export function NovaTarefaSheet({
                 </ChipButton>
               ))}
             </div>
-          </Field>
+          </FormField>
 
-          <Field label="Coluna inicial">
+          <FormField label="Coluna inicial">
             <div className="flex flex-wrap gap-1.5">
               {STATUS_OPTIONS.map((option) => (
                 <ChipButton
@@ -184,7 +185,7 @@ export function NovaTarefaSheet({
                 </ChipButton>
               ))}
             </div>
-          </Field>
+          </FormField>
 
           <div className="mt-auto flex gap-2 pt-2">
             <Button
@@ -202,49 +203,5 @@ export function NovaTarefaSheet({
         </form>
       </SheetContent>
     </Sheet>
-  )
-}
-
-function Field({
-  label,
-  htmlFor,
-  children,
-}: {
-  label: string
-  htmlFor?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label
-        htmlFor={htmlFor}
-        className="text-muted-foreground text-[11px] tracking-[0.12em] uppercase"
-      >
-        {label}
-      </label>
-      {children}
-    </div>
-  )
-}
-
-function ChipButton({
-  active,
-  children,
-  onClick,
-}: {
-  active: boolean
-  children: React.ReactNode
-  onClick: () => void
-}) {
-  return (
-    <Button
-      type="button"
-      size="sm"
-      variant={active ? "default" : "outline"}
-      className={cn(!active && "border-border/80 bg-transparent")}
-      onClick={onClick}
-    >
-      {children}
-    </Button>
   )
 }

@@ -129,11 +129,13 @@ export function ChipSelect<T extends string>({
   onChange: (value: T) => void
   className?: string
 }) {
-  const normalized = options.map((option) =>
-    typeof option === "string"
-      ? { value: option, label: option }
-      : option
-  )
+  const normalized =
+    typeof options[0] === "string"
+      ? (options as readonly T[]).map((option) => ({
+          value: option,
+          label: option,
+        }))
+      : (options as readonly { value: T; label: string }[])
 
   return (
     <div className={cn("flex flex-wrap gap-1.5", className)}>

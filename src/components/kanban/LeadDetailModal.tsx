@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 
 import { DatePicker } from "@/components/DatePicker"
 import {
@@ -6,9 +6,11 @@ import {
   KanbanDetailModal,
   PropertyField,
 } from "@/components/kanban/KanbanDetailModal"
+import type { LeadKanbanItem } from "@/components/kanban/types"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { leadColumns, type LeadItem } from "@/data/relacionamento"
+import { leadColumns } from "@/data/relacionamento"
+import { useKanbanDraft } from "@/hooks/use-kanban-draft"
 import { formatBrl, parseBrl } from "@/lib/money"
 
 const ORIGENS = ["Indicação", "Site", "LinkedIn", "Evento", "Manual"] as const
@@ -17,7 +19,7 @@ const STAGE_OPTIONS = leadColumns.map((c) => ({
   label: c.title,
 }))
 
-export type LeadKanbanItem = LeadItem & { columnId: string }
+export type { LeadKanbanItem }
 
 type LeadDetailModalProps = {
   item: LeadKanbanItem | null
@@ -34,31 +36,23 @@ export function LeadDetailModal({
   onSave,
   onDelete,
 }: LeadDetailModalProps) {
-  const [draft, setDraft] = useState<LeadKanbanItem | null>(null)
+  const { draft, setDraft, patchLocal } = useKanbanDraft(item, open)
   const [valorInput, setValorInput] = useState("")
-  const hydratedIdRef = useRef<string | null>(null)
+  const cardId = draft?.id ?? null
 
   useEffect(() => {
-    if (!open) {
-      hydratedIdRef.current = null
-      return
-    }
-    if (!item) return
-    if (hydratedIdRef.current === item.id) return
-    hydratedIdRef.current = item.id
-    setDraft({ ...item })
-    setValorInput(item.valor)
-  }, [open, item])
+    if (!cardId || !draft) return
+    setValorInput(draft.valor)
+    // Only re-sync when opening a different card — not on every draft patch.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [cardId])
 
   if (!draft) return null
 
-  function commit(next: LeadKanbanItem) {
+  function flush(partial?: Partial<LeadKanbanItem>) {
+    const next = { ...draft!, ...partial }
     setDraft(next)
     onSave(next)
-  }
-
-  function patch(partial: Partial<LeadKanbanItem>) {
-    commit({ ...draft!, ...partial })
   }
 
   const origemValue = (
@@ -70,7 +64,10 @@ export function LeadDetailModal({
   return (
     <KanbanDetailModal
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen && draft) onSave(draft)
+        onOpenChange(nextOpen)
+      }}
       title={draft.empresa}
       eyebrow="Lead"
       deleteLabel="Excluir lead"
@@ -79,14 +76,16 @@ export function LeadDetailModal({
         <>
           <Input
             value={draft.empresa}
-            onChange={(e) => patch({ empresa: e.target.value })}
+            onChange={(e) => patchLocal({ empresa: e.target.value })}
+            onBlur={() => flush()}
             className="font-display border-transparent bg-transparent px-0 text-2xl font-medium tracking-tight shadow-none focus-visible:ring-0"
             placeholder="Empresa"
           />
           <PropertyField label="Notas">
             <Textarea
               value={draft.descricao}
-              onChange={(e) => patch({ descricao: e.target.value })}
+              onChange={(e) => patchLocal({ descricao: e.target.value })}
+              onBlur={() => flush()}
               placeholder="Contexto da conversa, próximos passos…"
               className="bg-card/40 min-h-36"
             />
@@ -99,20 +98,22 @@ export function LeadDetailModal({
             <ChipSelect
               value={draft.columnId}
               options={STAGE_OPTIONS}
-              onChange={(columnId) => patch({ columnId })}
+              onChange={(columnId) => flush({ columnId })}
             />
           </PropertyField>
           <PropertyField label="Contato">
             <Input
               value={draft.nome}
-              onChange={(e) => patch({ nome: e.target.value })}
+              onChange={(e) => patchLocal({ nome: e.target.value })}
+              onBlur={() => flush()}
               className="bg-card/50"
             />
           </PropertyField>
           <PropertyField label="Interesse">
             <Input
               value={draft.interesse}
-              onChange={(e) => patch({ interesse: e.target.value })}
+              onChange={(e) => patchLocal({ interesse: e.target.value })}
+              onBlur={() => flush()}
               className="bg-card/50"
             />
           </PropertyField>
@@ -124,7 +125,7 @@ export function LeadDetailModal({
                 const amount = parseBrl(valorInput)
                 const formatted = amount > 0 ? formatBrl(amount) : draft.valor
                 setValorInput(formatted)
-                patch({ valor: formatted })
+                flush({ valor: formatted })
               }}
               className="bg-card/50 font-mono"
               inputMode="numeric"
@@ -133,14 +134,14 @@ export function LeadDetailModal({
           <PropertyField label="Follow-up">
             <DatePicker
               value={draft.prazo}
-              onChange={(prazo) => patch({ prazo })}
+              onChange={(prazo) => flush({ prazo })}
             />
           </PropertyField>
           <PropertyField label="Origem">
             <ChipSelect
               value={origemValue}
               options={ORIGENS}
-              onChange={(origem) => patch({ origem })}
+              onChange={(origem) => flush({ origem })}
             />
           </PropertyField>
         </>

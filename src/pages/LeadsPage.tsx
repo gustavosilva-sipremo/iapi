@@ -1,19 +1,18 @@
-import { useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { Plus } from "lucide-react"
 
 import {
   KanbanBoard,
   type KanbanColumnDef,
 } from "@/components/kanban/KanbanBoard"
-import {
-  LeadDetailModal,
-  type LeadKanbanItem,
-} from "@/components/kanban/LeadDetailModal"
+import { LeadDetailModal } from "@/components/kanban/LeadDetailModal"
+import type { LeadKanbanItem } from "@/components/kanban/types"
 import { NovoLeadSheet } from "@/components/NovoLeadSheet"
 import { PageHeader } from "@/components/PageHeader"
 import { Button } from "@/components/ui/button"
 import { leadColumns } from "@/data/relacionamento"
 import {
+  findItemLocation,
   groupByColumn,
   useKanbanState,
   type KanbanBoardState,
@@ -52,7 +51,7 @@ function LeadCard({ item }: { item: LeadKanbanItem }) {
       <p className="text-muted-foreground mt-1.5 text-xs">
         {item.nome} · {item.interesse}
       </p>
-      <div className="mt-3 flex items-center justify-between gap-2">
+      <div className="mt-3">
         <span className="font-mono text-xs font-medium text-ink tabular-nums">
           {item.valor}
         </span>
@@ -62,7 +61,8 @@ function LeadCard({ item }: { item: LeadKanbanItem }) {
 }
 
 function columnTotal(items: LeadKanbanItem[]): string {
-  const sum = items.reduce((acc, item) => acc + parseBrl(item.valor), 0)
+  let sum = 0
+  for (const item of items) sum += parseBrl(item.valor)
   return formatBrlCompact(sum)
 }
 
@@ -71,16 +71,57 @@ export function LeadsPage() {
     useKanbanState(INITIAL_BOARD)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const columns = useMemo(() => BOARD_COLUMNS, [])
 
   const selectedItem = useMemo(() => {
     if (!selectedId) return null
-    for (const [columnId, items] of Object.entries(board)) {
-      const found = items.find((item) => item.id === selectedId)
-      if (found) return { ...found, columnId }
-    }
-    return null
+    const loc = findItemLocation(board, selectedId)
+    if (!loc) return null
+    return loc.item.columnId === loc.columnId
+      ? loc.item
+      : { ...loc.item, columnId: loc.columnId }
   }, [board, selectedId])
+
+  const handleMove = useCallback(
+    (activeId: string, overColumnId: string, overIndex: number) => {
+      moveItem(activeId, overColumnId, overIndex, (item, columnId) => ({
+        ...item,
+        columnId,
+      }))
+    },
+    [moveItem]
+  )
+
+  const handleCardOpen = useCallback((item: LeadKanbanItem) => {
+    setSelectedId(item.id)
+  }, [])
+
+  const handleCreate = useCallback(
+    (item: LeadKanbanItem) => addItem(item.columnId, item),
+    [addItem]
+  )
+
+  const handleSave = useCallback(
+    (item: LeadKanbanItem) => updateItem(item.id, item, item.columnId),
+    [updateItem]
+  )
+
+  const handleDelete = useCallback(
+    (id: string) => {
+      removeItem(id)
+      setSelectedId(null)
+    },
+    [removeItem]
+  )
+
+  const renderCard = useCallback(
+    (item: LeadKanbanItem) => <LeadCard item={item} />,
+    []
+  )
+
+  const getColumnMeta = useCallback(
+    (_id: string, items: LeadKanbanItem[]) => columnTotal(items),
+    []
+  )
 
   return (
     <div className="flex flex-col gap-8 sm:gap-10 md:gap-12">
@@ -105,29 +146,22 @@ export function LeadsPage() {
         style={{ animationDelay: "80ms" }}
       >
         <KanbanBoard<LeadKanbanItem>
-          columns={columns}
+          columns={BOARD_COLUMNS}
           board={board}
-          onMove={(activeId, overColumnId, overIndex) => {
-            moveItem(
-              activeId,
-              overColumnId,
-              overIndex,
-              (item, columnId) => ({ ...item, columnId })
-            )
-          }}
-          onCardOpen={(item) => setSelectedId(item.id)}
-          getColumnMeta={(_id, items) => columnTotal(items)}
+          onMove={handleMove}
+          onCardOpen={handleCardOpen}
+          getColumnMeta={getColumnMeta}
           emptyLabel="Nenhum lead"
-          className="min-w-[68rem] xl:min-w-0"
+          className="min-w-272 xl:min-w-0"
           columnsClassName="grid-cols-5 gap-4 xl:gap-5"
-          renderCard={(item) => <LeadCard item={item} />}
+          renderCard={renderCard}
         />
       </section>
 
       <NovoLeadSheet
         open={sheetOpen}
         onOpenChange={setSheetOpen}
-        onCreate={(item) => addItem(item.columnId, item)}
+        onCreate={handleCreate}
       />
 
       <LeadDetailModal
@@ -136,11 +170,8 @@ export function LeadsPage() {
         onOpenChange={(open) => {
           if (!open) setSelectedId(null)
         }}
-        onSave={(item) => updateItem(item.id, item, item.columnId)}
-        onDelete={(id) => {
-          removeItem(id)
-          setSelectedId(null)
-        }}
+        onSave={handleSave}
+        onDelete={handleDelete}
       />
     </div>
   )

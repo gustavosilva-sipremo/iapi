@@ -1,5 +1,3 @@
-import { useEffect, useRef, useState } from "react"
-
 import { DatePicker } from "@/components/DatePicker"
 import {
   ChipSelect,
@@ -13,6 +11,7 @@ import type {
   TarefaPrioridade,
   TarefaStatus,
 } from "@/data/processos"
+import { useKanbanDraft } from "@/hooks/use-kanban-draft"
 import { initials } from "@/lib/initials"
 
 const PRIORIDADES: TarefaPrioridade[] = ["Alta", "Média", "Baixa"]
@@ -38,39 +37,26 @@ export function TarefaDetailModal({
   onSave,
   onDelete,
 }: TarefaDetailModalProps) {
-  const [draft, setDraft] = useState<TarefaItem | null>(null)
-  const hydratedIdRef = useRef<string | null>(null)
-
-  useEffect(() => {
-    if (!open) {
-      hydratedIdRef.current = null
-      return
-    }
-    if (!item) return
-    if (hydratedIdRef.current === item.id) return
-    hydratedIdRef.current = item.id
-    setDraft({ ...item })
-  }, [open, item])
+  const { draft, setDraft, patchLocal } = useKanbanDraft(item, open)
 
   if (!draft) return null
 
-  function commit(next: TarefaItem) {
-    setDraft(next)
-    onSave(next)
-  }
-
-  function patch(partial: Partial<TarefaItem>) {
+  function flush(partial?: Partial<TarefaItem>) {
     const next: TarefaItem = { ...draft!, ...partial }
-    if (partial.responsavel != null) {
+    if (partial?.responsavel != null) {
       next.resInit = initials(partial.responsavel) || draft!.resInit
     }
-    commit(next)
+    setDraft(next)
+    onSave(next)
   }
 
   return (
     <KanbanDetailModal
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen && draft) onSave(draft)
+        onOpenChange(nextOpen)
+      }}
       title={draft.titulo}
       eyebrow="Tarefa"
       deleteLabel="Excluir tarefa"
@@ -79,14 +65,16 @@ export function TarefaDetailModal({
         <>
           <Input
             value={draft.titulo}
-            onChange={(e) => patch({ titulo: e.target.value })}
+            onChange={(e) => patchLocal({ titulo: e.target.value })}
+            onBlur={() => flush()}
             className="font-display border-transparent bg-transparent px-0 text-2xl font-medium tracking-tight shadow-none focus-visible:ring-0"
             placeholder="Nome da tarefa"
           />
           <PropertyField label="Descrição">
             <Textarea
               value={draft.descricao}
-              onChange={(e) => patch({ descricao: e.target.value })}
+              onChange={(e) => patchLocal({ descricao: e.target.value })}
+              onBlur={() => flush()}
               placeholder="Adicione contexto, links ou próximos passos…"
               className="bg-card/40 min-h-36"
             />
@@ -99,33 +87,40 @@ export function TarefaDetailModal({
             <ChipSelect
               value={draft.status}
               options={STATUS_OPTIONS}
-              onChange={(status) => patch({ status })}
+              onChange={(status) => flush({ status })}
             />
           </PropertyField>
           <PropertyField label="Prioridade">
             <ChipSelect
               value={draft.prioridade}
               options={PRIORIDADES}
-              onChange={(prioridade) => patch({ prioridade })}
+              onChange={(prioridade) => flush({ prioridade })}
             />
           </PropertyField>
           <PropertyField label="Prazo">
             <DatePicker
               value={draft.prazo}
-              onChange={(prazo) => patch({ prazo })}
+              onChange={(prazo) => flush({ prazo })}
             />
           </PropertyField>
           <PropertyField label="Cliente">
             <Input
               value={draft.cliente}
-              onChange={(e) => patch({ cliente: e.target.value })}
+              onChange={(e) => patchLocal({ cliente: e.target.value })}
+              onBlur={() => flush()}
               className="bg-card/50"
             />
           </PropertyField>
           <PropertyField label="Responsável">
             <Input
               value={draft.responsavel}
-              onChange={(e) => patch({ responsavel: e.target.value })}
+              onChange={(e) =>
+                patchLocal({
+                  responsavel: e.target.value,
+                  resInit: initials(e.target.value) || draft.resInit,
+                })
+              }
+              onBlur={() => flush()}
               className="bg-card/50"
             />
           </PropertyField>
