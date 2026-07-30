@@ -1,13 +1,16 @@
 import { useState, type FormEvent } from "react"
+import { Moon, Sun } from "lucide-react"
 import { Navigate, useNavigate } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/hooks/use-auth"
+import { useTheme } from "@/hooks/use-theme"
 import { cn } from "@/lib/utils"
 
 export function LoginPage() {
   const { isAuthenticated, login } = useAuth()
+  const { theme, toggle: toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [email, setEmail] = useState("aminy@nomequemarca.com")
   const [password, setPassword] = useState("123456789")
@@ -24,45 +27,64 @@ export function LoginPage() {
   }
 
   return (
-    <div className="animate-fade-in grid min-h-dvh lg:grid-cols-2">
-      <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#0d0d0d] px-10 py-12 text-[#e9e2d6] lg:flex lg:px-14 lg:py-14">
+    <div className="animate-fade-in relative grid min-h-dvh lg:grid-cols-2">
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        className="text-muted-foreground absolute top-[max(1rem,env(safe-area-inset-top))] right-[max(1rem,env(safe-area-inset-right))] z-10"
+        onClick={toggleTheme}
+        aria-label={
+          theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"
+        }
+      >
+        {theme === "dark" ? (
+          <Sun className="size-4" />
+        ) : (
+          <Moon className="size-4" />
+        )}
+      </Button>
+
+      {/* Brand panel — dark in light mode, light in dark mode */}
+      <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#0d0d0d] px-10 py-12 text-[#e9e2d6] lg:flex lg:px-14 lg:py-14 dark:bg-[#f2f2f2] dark:text-[#0d0d0d]">
         <div
-          className="pointer-events-none absolute -top-16 -right-20 size-[360px] rounded-full border border-white/6"
+          className="pointer-events-none absolute -top-16 -right-20 size-[360px] rounded-full border border-white/6 dark:border-black/8"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute top-10 right-5 size-[240px] rounded-full border border-white/5"
+          className="pointer-events-none absolute top-10 right-5 size-[240px] rounded-full border border-white/5 dark:border-black/6"
           aria-hidden
         />
 
         <div className="relative flex items-center gap-3">
           <div
-            className="font-display flex size-9 items-center justify-center rounded-full border border-[#f4f0e9]/70 text-base text-[#f4f0e9]"
+            className="font-display flex size-9 items-center justify-center rounded-full border border-[#f4f0e9]/70 text-base text-[#f4f0e9] dark:border-[#0d0d0d]/70 dark:text-[#0d0d0d]"
             aria-hidden
           >
             n
           </div>
-          <p className="font-display text-[17px] text-[#f4f0e9]">
+          <p className="font-display text-[17px] text-[#f4f0e9] dark:text-[#0d0d0d]">
             Nome Que Marca
           </p>
         </div>
 
         <div className="relative max-w-md">
-          <p className="font-mono text-[11px] tracking-[0.2em] text-[#bc5a2c] uppercase">
+          <p className="font-mono text-[11px] tracking-[0.2em] text-[#bc5a2c] uppercase dark:text-[#8c1111]">
             IAPI · Acesso restrito
           </p>
-          <blockquote className="font-display mt-6 text-[1.85rem] leading-[1.3] font-light text-[#f4f0e9] italic xl:text-[2rem]">
+          <blockquote className="font-display mt-6 text-[1.85rem] leading-[1.3] font-light text-[#f4f0e9] italic xl:text-[2rem] dark:text-[#0d0d0d]">
             “Toda marca que marca
             <br />
             deve ser registrada.”
           </blockquote>
         </div>
 
-        <p className="relative text-xs text-[#e9e2d6]/45">
+        <p className="relative text-xs text-[#e9e2d6]/45 dark:text-[#0d0d0d]/45">
           Ambiente seguro · Dados criptografados
         </p>
       </aside>
 
+      {/* Form panel — light in light mode, dark in dark mode (via tokens) */}
       <div className="bg-background flex flex-col justify-center px-5 py-10 sm:px-8 md:px-12">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-8 flex items-center gap-2.5 lg:hidden">
