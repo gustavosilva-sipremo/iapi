@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { createPortal } from "react-dom"
 import {
   DndContext,
@@ -38,8 +38,13 @@ export type KanbanColumnDef = {
 type KanbanBoardProps<T extends KanbanItemBase> = {
   columns: readonly KanbanColumnDef[]
   board: KanbanBoardState<T>
-  onMove: (activeId: string, overColumnId: string, overIndex: number) => void
+  onMove: (
+    activeId: string,
+    overColumnId: string,
+    overIndex: number
+  ) => void
   renderCard: (item: T, isDragging: boolean) => ReactNode
+  onCardOpen?: (item: T) => void
   getColumnMeta?: (columnId: string, items: T[]) => ReactNode
   emptyLabel?: string
   className?: string
@@ -58,9 +63,11 @@ const dropAnimation: DropAnimation = {
 
 function SortableCard({
   id,
+  onOpen,
   children,
 }: {
   id: string
+  onOpen?: () => void
   children: (args: { isDragging: boolean }) => ReactNode
 }) {
   const {
@@ -71,6 +78,11 @@ function SortableCard({
     transition,
     isDragging,
   } = useSortable({ id })
+  const didDragRef = useRef(false)
+
+  useEffect(() => {
+    if (isDragging) didDragRef.current = true
+  }, [isDragging])
 
   return (
     <li
@@ -81,11 +93,18 @@ function SortableCard({
         transition: isDragging ? undefined : transition,
       }}
       className={cn(
-        "border-border/70 bg-card/40 hover:border-primary/30 touch-none rounded-xl border p-3.5 transition-colors",
+        "border-border/70 bg-card/40 hover:border-primary/30 touch-none cursor-pointer rounded-xl border p-3.5 transition-colors",
         isDragging && "opacity-40"
       )}
       {...attributes}
       {...listeners}
+      onClick={() => {
+        if (didDragRef.current) {
+          didDragRef.current = false
+          return
+        }
+        onOpen?.()
+      }}
     >
       {children({ isDragging })}
     </li>
@@ -99,6 +118,7 @@ function DroppableColumn<T extends KanbanItemBase>({
   emptyLabel,
   isOver,
   renderCard,
+  onCardOpen,
   activeId,
 }: {
   column: KanbanColumnDef
@@ -107,6 +127,7 @@ function DroppableColumn<T extends KanbanItemBase>({
   emptyLabel: string
   isOver: boolean
   renderCard: (item: T, isDragging: boolean) => ReactNode
+  onCardOpen?: (item: T) => void
   activeId: UniqueIdentifier | null
 }) {
   const { setNodeRef } = useDroppable({ id: column.id })
@@ -143,7 +164,11 @@ function DroppableColumn<T extends KanbanItemBase>({
           )}
         >
           {items.map((item) => (
-            <SortableCard key={item.id} id={item.id}>
+            <SortableCard
+              key={item.id}
+              id={item.id}
+              onOpen={onCardOpen ? () => onCardOpen(item) : undefined}
+            >
               {({ isDragging }) =>
                 renderCard(item, isDragging || activeId === item.id)
               }
@@ -165,6 +190,7 @@ export function KanbanBoard<T extends KanbanItemBase>({
   board,
   onMove,
   renderCard,
+  onCardOpen,
   getColumnMeta,
   emptyLabel = "Nenhum item",
   className,
@@ -288,6 +314,7 @@ export function KanbanBoard<T extends KanbanItemBase>({
                 emptyLabel={emptyLabel}
                 isOver={overColumnId === column.id}
                 renderCard={renderCard}
+                onCardOpen={onCardOpen}
                 activeId={activeId}
               />
             )

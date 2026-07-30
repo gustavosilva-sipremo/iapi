@@ -83,6 +83,9 @@ export type LeadItem = {
   interesse: string
   valor: string
   origem: string
+  /** ISO YYYY-MM-DD — follow-up / próximo contato */
+  prazo: string
+  descricao: string
 }
 
 export type LeadColumn = {
@@ -105,6 +108,8 @@ export const leadColumns: LeadColumn[] = [
         interesse: "Naming",
         valor: "R$ 8.500",
         origem: "Indicação",
+        prazo: "2026-07-30",
+        descricao: "Primeiro contato via indicação da Raiz. Quer naming para rebrand.",
       },
       {
         id: "l2",
@@ -113,6 +118,8 @@ export const leadColumns: LeadColumn[] = [
         interesse: "Naming + INPI",
         valor: "R$ 12.000",
         origem: "Site",
+        prazo: "2026-08-01",
+        descricao: "Formulário do site; pediu escopo completo com registro.",
       },
     ],
   },
@@ -128,6 +135,8 @@ export const leadColumns: LeadColumn[] = [
         interesse: "Identidade verbal",
         valor: "R$ 15.000",
         origem: "LinkedIn",
+        prazo: "2026-08-04",
+        descricao: "Call feita; alinhado tom editorial e prazo de 6 semanas.",
       },
       {
         id: "l4",
@@ -136,6 +145,8 @@ export const leadColumns: LeadColumn[] = [
         interesse: "Registro INPI",
         valor: "R$ 6.800",
         origem: "Indicação",
+        prazo: "2026-07-31",
+        descricao: "Já tem naming; foco em classes NCL e monitoramento.",
       },
     ],
   },
@@ -151,6 +162,8 @@ export const leadColumns: LeadColumn[] = [
         interesse: "Pacote completo",
         valor: "R$ 34.000",
         origem: "Evento",
+        prazo: "2026-08-05",
+        descricao: "Proposta enviada em 22/07. Aguardando retorno do board.",
       },
       {
         id: "l6",
@@ -159,6 +172,8 @@ export const leadColumns: LeadColumn[] = [
         interesse: "Naming",
         valor: "R$ 9.500",
         origem: "Site",
+        prazo: "2026-08-02",
+        descricao: "Proposta de naming enviada; follow-up agendado.",
       },
     ],
   },
@@ -174,6 +189,8 @@ export const leadColumns: LeadColumn[] = [
         interesse: "Naming + registro",
         valor: "R$ 18.000",
         origem: "Indicação",
+        prazo: "2026-08-06",
+        descricao: "Negociando escopo de registro internacional.",
       },
     ],
   },
@@ -189,6 +206,8 @@ export const leadColumns: LeadColumn[] = [
         interesse: "Pacote naming",
         valor: "R$ 9.600",
         origem: "Indicação",
+        prazo: "2026-07-20",
+        descricao: "Contrato assinado. Kickoff concluído.",
       },
       {
         id: "l9",
@@ -197,6 +216,8 @@ export const leadColumns: LeadColumn[] = [
         interesse: "Naming",
         valor: "R$ 12.000",
         origem: "Site",
+        prazo: "2026-07-22",
+        descricao: "Fechado naming; proposta de registro em aberto.",
       },
     ],
   },

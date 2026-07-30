@@ -39,7 +39,12 @@ export function useKanbanState<T extends KanbanItemBase>(
   const [board, setBoard] = useState(initial)
 
   const moveItem = useCallback(
-    (activeId: string, overColumnId: string, overIndex: number) => {
+    (
+      activeId: string,
+      overColumnId: string,
+      overIndex: number,
+      mapItem?: (item: T, columnId: string) => T
+    ) => {
       setBoard((prev) => {
         const fromColumnId = findColumnOfItem(prev, activeId)
         if (!fromColumnId || !prev[overColumnId]) return prev
@@ -57,7 +62,8 @@ export function useKanbanState<T extends KanbanItemBase>(
         }
 
         const nextFrom = [...fromItems]
-        const [item] = nextFrom.splice(activeIndex, 1)
+        const [raw] = nextFrom.splice(activeIndex, 1)
+        const item = mapItem ? mapItem(raw, overColumnId) : raw
         const toItems = [...prev[overColumnId]]
         const clamped = Math.max(0, Math.min(overIndex, toItems.length))
         toItems.splice(clamped, 0, item)
@@ -72,5 +78,52 @@ export function useKanbanState<T extends KanbanItemBase>(
     []
   )
 
-  return { board, setBoard, moveItem }
+  const addItem = useCallback((columnId: string, item: T) => {
+    setBoard((prev) => {
+      if (!prev[columnId]) return prev
+      return {
+        ...prev,
+        [columnId]: [item, ...prev[columnId]],
+      }
+    })
+  }, [])
+
+  const updateItem = useCallback(
+    (itemId: string, nextItem: T, nextColumnId: string) => {
+      setBoard((prev) => {
+        const fromColumnId = findColumnOfItem(prev, itemId)
+        if (!fromColumnId || !prev[nextColumnId]) return prev
+
+        if (fromColumnId === nextColumnId) {
+          return {
+            ...prev,
+            [fromColumnId]: prev[fromColumnId].map((item) =>
+              item.id === itemId ? nextItem : item
+            ),
+          }
+        }
+
+        const nextFrom = prev[fromColumnId].filter((item) => item.id !== itemId)
+        return {
+          ...prev,
+          [fromColumnId]: nextFrom,
+          [nextColumnId]: [nextItem, ...prev[nextColumnId]],
+        }
+      })
+    },
+    []
+  )
+
+  const removeItem = useCallback((itemId: string) => {
+    setBoard((prev) => {
+      const columnId = findColumnOfItem(prev, itemId)
+      if (!columnId) return prev
+      return {
+        ...prev,
+        [columnId]: prev[columnId].filter((item) => item.id !== itemId),
+      }
+    })
+  }, [])
+
+  return { board, setBoard, moveItem, addItem, updateItem, removeItem }
 }

@@ -116,7 +116,9 @@ export type TarefaItem = {
   status: TarefaStatus
   responsavel: string
   resInit: string
+  /** ISO YYYY-MM-DD — exibir sempre como dd/mm/aaaa */
   prazo: string
+  descricao: string
   avColor: string
 }
 
@@ -129,7 +131,9 @@ export const tarefasLista: TarefaItem[] = [
     status: "A fazer",
     responsavel: "Marina A.",
     resInit: "MA",
-    prazo: "Hoje",
+    prazo: "2026-07-29",
+    descricao:
+      "Cruzar shortlist com busca fonética e riscos de colisão antes da apresentação.",
     avColor: "#8c1111",
   },
   {
@@ -140,7 +144,8 @@ export const tarefasLista: TarefaItem[] = [
     status: "A fazer",
     responsavel: "Carla M.",
     resInit: "CM",
-    prazo: "Amanhã",
+    prazo: "2026-07-30",
+    descricao: "Tom de voz raiz/território; alinhar com naming aprovado.",
     avColor: "#22314f",
   },
   {
@@ -151,7 +156,8 @@ export const tarefasLista: TarefaItem[] = [
     status: "Em andamento",
     responsavel: "Marina A.",
     resInit: "MA",
-    prazo: "2 dias",
+    prazo: "2026-07-31",
+    descricao: "Montar argumentação e anexos para a exigência formal.",
     avColor: "#bc5a2c",
   },
   {
@@ -162,7 +168,8 @@ export const tarefasLista: TarefaItem[] = [
     status: "Em andamento",
     responsavel: "João P.",
     resInit: "JP",
-    prazo: "3 dias",
+    prazo: "2026-08-01",
+    descricao: "Pacote naming + registro; incluir cronograma e investimento.",
     avColor: "#3a5560",
   },
   {
@@ -173,7 +180,8 @@ export const tarefasLista: TarefaItem[] = [
     status: "Em revisão",
     responsavel: "Carla M.",
     resInit: "CM",
-    prazo: "Sex",
+    prazo: "2026-07-31",
+    descricao: "Revisão final de microcopy e leituras de marca.",
     avColor: "#5e6b52",
   },
   {
@@ -184,7 +192,8 @@ export const tarefasLista: TarefaItem[] = [
     status: "Concluída",
     responsavel: "Financeiro",
     resInit: "FI",
-    prazo: "Ok",
+    prazo: "2026-07-25",
+    descricao: "Certificado emitido e enviado ao cliente.",
     avColor: "#8a4a52",
   },
 ]
