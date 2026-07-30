@@ -8,11 +8,12 @@ import { CasosPage } from "@/pages/CasosPage"
 import { ClientesPage } from "@/pages/ClientesPage"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { DominiosPage } from "@/pages/DominiosPage"
+import { FinanceiroPage } from "@/pages/FinanceiroPage"
 import { LeadsPage } from "@/pages/LeadsPage"
 import { MonitoramentoPage } from "@/pages/MonitoramentoPage"
 import { PrazosPage } from "@/pages/PrazosPage"
-import { PlaceholderPage } from "@/pages/PlaceholderPage"
 import { TarefasPage } from "@/pages/TarefasPage"
+import { UsuariosPage } from "@/pages/UsuariosPage"
 
 export default function App() {
   return (
@@ -30,8 +31,8 @@ export default function App() {
           <Route path="agenda" element={<AgendaPage />} />
           <Route path="clientes" element={<ClientesPage />} />
           <Route path="leads" element={<LeadsPage />} />
-          <Route path="financeiro" element={<PlaceholderPage />} />
-          <Route path="usuarios" element={<PlaceholderPage />} />
+          <Route path="financeiro" element={<FinanceiroPage />} />
+          <Route path="usuarios" element={<UsuariosPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
